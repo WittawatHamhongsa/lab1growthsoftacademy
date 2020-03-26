@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const config = require("./config/config.js");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const requestTest = require("request");
 
 var sessionStore = new MongoDBStore({
   uri: config.dbUrl,
@@ -84,6 +85,34 @@ app.use(function(req, res, next) {
 //partial API
 // app.use("", require("./app/route/testAPI.js"));
 app.use("/api", require("./app/routes/food_route.js"));
+
+app.get("/test_scopus/", function(request, response) {
+  console.log("REQUEST GET scopus api!!");
+
+  const options = {
+    url:
+      "https://api.elsevier.com/content/author/author_id/6602488801?apiKey=7f59af901d2d86f78a1fd60c1bf9426a",
+    headers: {
+      Accept: "application/json"
+    }
+  };
+
+  function callback(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      const info = JSON.parse(body);
+      console.log(info.stargazers_count + " Stars");
+      console.log(info.forks_count + " Forks");
+    }
+    if (error) {
+      console.log(error + " Error");
+      const info = JSON.parse(body);
+      console.log(info.stargazers_count + " Stars");
+      console.log(info.forks_count + " Forks");
+    }
+  }
+
+  requestTest(options, callback);
+});
 
 // app.get("/", (req, res) => {
 //   res.send("Hello World");
